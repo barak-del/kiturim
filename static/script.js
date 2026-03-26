@@ -152,61 +152,56 @@ document.addEventListener("DOMContentLoaded", () => {
         shareBtn.disabled = true;
         shareBtn.textContent = "...מכין תמונה";
 
+        // Remember which cards were open
+        const cards = document.querySelectorAll(".response-card");
+        const wasOpen = Array.from(cards).map(c => c.classList.contains("open"));
+
         try {
-            // Open all cards for screenshot
-            const cards = document.querySelectorAll(".response-card");
-            cards.forEach(card => card.classList.add("open"));
-
-            // Hide buttons during screenshot
-            const actionBtns = document.querySelector(".action-buttons");
-            actionBtns.style.display = "none";
-
-            // Create a wrapper with branding for the screenshot
-            const shareWrapper = document.createElement("div");
-            shareWrapper.style.cssText = "position:fixed;top:-9999px;left:0;width:500px;padding:24px;background:#FFF9F5;font-family:Rubik,sans-serif;direction:rtl;";
-
-            // Add branding header
-            const header = document.createElement("div");
-            header.style.cssText = "text-align:center;margin-bottom:16px;";
-            header.innerHTML = '<div style="font-size:1.8rem;font-weight:900;color:#f0a07a;">קיטורים</div><div style="font-size:0.75rem;color:#999;">by Barak Markov</div>';
-            shareWrapper.appendChild(header);
-
-            // Clone results content (without buttons)
-            const resultsClone = results.cloneNode(true);
-            resultsClone.classList.remove("hidden");
-            const clonedBtns = resultsClone.querySelector(".action-buttons");
-            if (clonedBtns) clonedBtns.remove();
-            // Open all cards in clone
-            resultsClone.querySelectorAll(".response-card").forEach(c => c.classList.add("open"));
-            // Force card bodies visible in clone
-            resultsClone.querySelectorAll(".card-body").forEach(b => {
-                b.style.maxHeight = "none";
-                b.style.marginTop = "14px";
+            // Open all cards and force-show content
+            cards.forEach(card => {
+                card.classList.add("open");
+                const body = card.querySelector(".card-body");
+                if (body) body.style.maxHeight = "500px";
             });
-            // Hide tap hints in clone
-            resultsClone.querySelectorAll(".card-tap-hint").forEach(h => h.style.display = "none");
-            shareWrapper.appendChild(resultsClone);
 
-            // Add footer
-            const footer = document.createElement("div");
-            footer.style.cssText = "text-align:center;margin-top:16px;padding-top:12px;border-top:1px dashed #ddd;font-size:0.8rem;color:#aaa;";
-            footer.textContent = "kiturim.onrender.com 💨";
-            shareWrapper.appendChild(footer);
+            // Hide buttons and hints
+            const actionBtns = document.querySelector(".action-buttons");
+            const hints = document.querySelectorAll(".card-tap-hint, .card-chevron");
+            actionBtns.style.display = "none";
+            hints.forEach(h => h.style.display = "none");
 
-            document.body.appendChild(shareWrapper);
+            // Add branding header temporarily
+            const brandEl = document.createElement("div");
+            brandEl.id = "share-brand";
+            brandEl.style.cssText = "text-align:center;padding:16px 0 8px;";
+            brandEl.innerHTML = '<div style="font-size:1.8rem;font-weight:900;color:#f0a07a;font-family:Rubik,sans-serif;">קיטורים</div><div style="font-size:0.75rem;color:#999;font-family:Rubik,sans-serif;">by Barak Markov</div>';
+            results.insertBefore(brandEl, results.firstChild);
 
-            await new Promise(resolve => setTimeout(resolve, 300));
+            // Add footer temporarily
+            const footerEl = document.createElement("div");
+            footerEl.id = "share-footer";
+            footerEl.style.cssText = "text-align:center;padding:12px 0 16px;border-top:1px dashed #ddd;font-size:0.8rem;color:#aaa;font-family:Rubik,sans-serif;";
+            footerEl.textContent = "kiturim.onrender.com";
+            results.appendChild(footerEl);
 
-            const canvas = await html2canvas(shareWrapper, {
+            await new Promise(resolve => setTimeout(resolve, 400));
+
+            const canvas = await html2canvas(results, {
                 backgroundColor: "#FFF9F5",
                 scale: 2,
                 useCORS: true,
-                width: 500,
             });
 
-            // Cleanup
-            document.body.removeChild(shareWrapper);
+            // Cleanup temporary elements
+            brandEl.remove();
+            footerEl.remove();
             actionBtns.style.display = "";
+            hints.forEach(h => h.style.display = "");
+            cards.forEach((card, i) => {
+                if (!wasOpen[i]) card.classList.remove("open");
+                const body = card.querySelector(".card-body");
+                if (body) body.style.maxHeight = "";
+            });
 
             const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
             const file = new File([blob], "kiturim.png", { type: "image/png" });
@@ -229,12 +224,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 window.open(`https://wa.me/?text=${whatsappText}`, "_blank");
             }
         } catch (err) {
+            // Cleanup on error too
+            const brandEl = document.getElementById("share-brand");
+            const footerEl = document.getElementById("share-footer");
+            if (brandEl) brandEl.remove();
+            if (footerEl) footerEl.remove();
+            document.querySelector(".action-buttons").style.display = "";
+            document.querySelectorAll(".card-tap-hint, .card-chevron").forEach(h => h.style.display = "");
+            cards.forEach((card, i) => {
+                if (!wasOpen[i]) card.classList.remove("open");
+                const body = card.querySelector(".card-body");
+                if (body) body.style.maxHeight = "";
+            });
             if (err.name !== "AbortError") {
                 showError("לא הצלחתי לשתף, נסה שוב");
             }
         } finally {
-            const actionBtns = document.querySelector(".action-buttons");
-            actionBtns.style.display = "";
             shareBtn.disabled = false;
             shareBtn.textContent = "שתף בוואטסאפ 📲";
         }
