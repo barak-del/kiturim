@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const kereshText = document.getElementById("kereshText");
 
     const loadingMessages = [
-        "...מנתח את רמת הבורגנות",
+        "...מנתח את רמת התלונה",
         "...מייצר ציניות ברמה גבוהה",
         "...מחפש משחקי מילים גרועים",
         "...מתפלסף על הקיום שלך",
