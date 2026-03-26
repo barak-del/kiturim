@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function showResults(data) {
+        lastResult = data;
         // Coffee fill animation - rating 1-5 maps to fill level
         const rating = data.rating || 3;
         // y goes from 130 (empty) to 32 (full). Each level = ~20px
@@ -148,101 +149,34 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Share on WhatsApp
-    shareBtn.addEventListener("click", async () => {
-        shareBtn.disabled = true;
-        shareBtn.textContent = "...מכין תמונה";
+    let lastResult = null;
 
-        // Remember which cards were open
-        const cards = document.querySelectorAll(".response-card");
-        const wasOpen = Array.from(cards).map(c => c.classList.contains("open"));
+    shareBtn.addEventListener("click", () => {
+        if (!lastResult) return;
 
-        try {
-            // Open all cards and force-show content
-            cards.forEach(card => {
-                card.classList.add("open");
-                const body = card.querySelector(".card-body");
-                if (body) body.style.maxHeight = "500px";
-            });
+        const stars = "⭐".repeat(lastResult.rating) + "☆".repeat(5 - lastResult.rating);
+        const text = [
+            "💨 *קיטורים* by Barak Markov",
+            "",
+            `*מד התלונה:* ${stars} (${lastResult.rating}/5)`,
+            lastResult.rating_text,
+            "",
+            `😼 *הציניקן:*`,
+            lastResult.cynic,
+            "",
+            `🦉 *הפילוסוף:*`,
+            lastResult.philosopher,
+            "",
+            `🪵 *הקרש:*`,
+            lastResult.keresh,
+            "",
+            "---",
+            "נסו גם! 👇",
+            "https://kiturim.onrender.com",
+        ].join("\n");
 
-            // Hide buttons and hints
-            const actionBtns = document.querySelector(".action-buttons");
-            const hints = document.querySelectorAll(".card-tap-hint, .card-chevron");
-            actionBtns.style.display = "none";
-            hints.forEach(h => h.style.display = "none");
-
-            // Add branding header temporarily
-            const brandEl = document.createElement("div");
-            brandEl.id = "share-brand";
-            brandEl.style.cssText = "text-align:center;padding:16px 0 8px;";
-            brandEl.innerHTML = '<div style="font-size:1.8rem;font-weight:900;color:#f0a07a;font-family:Rubik,sans-serif;">קיטורים</div><div style="font-size:0.75rem;color:#999;font-family:Rubik,sans-serif;">by Barak Markov</div>';
-            results.insertBefore(brandEl, results.firstChild);
-
-            // Add footer temporarily
-            const footerEl = document.createElement("div");
-            footerEl.id = "share-footer";
-            footerEl.style.cssText = "text-align:center;padding:12px 0 16px;border-top:1px dashed #ddd;font-size:0.8rem;color:#aaa;font-family:Rubik,sans-serif;";
-            footerEl.textContent = "kiturim.onrender.com";
-            results.appendChild(footerEl);
-
-            await new Promise(resolve => setTimeout(resolve, 400));
-
-            const canvas = await html2canvas(results, {
-                backgroundColor: "#FFF9F5",
-                scale: 2,
-                useCORS: true,
-            });
-
-            // Cleanup temporary elements
-            brandEl.remove();
-            footerEl.remove();
-            actionBtns.style.display = "";
-            hints.forEach(h => h.style.display = "");
-            cards.forEach((card, i) => {
-                if (!wasOpen[i]) card.classList.remove("open");
-                const body = card.querySelector(".card-body");
-                if (body) body.style.maxHeight = "";
-            });
-
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-            const file = new File([blob], "kiturim.png", { type: "image/png" });
-
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: "קיטורים",
-                    text: "תראו מה קיבלתי באפליקציית קיטורים 😂",
-                });
-            } else {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "kiturim.png";
-                a.click();
-                URL.revokeObjectURL(url);
-
-                const whatsappText = encodeURIComponent("תראו מה קיבלתי באפליקציית קיטורים 😂\nhttps://kiturim.onrender.com");
-                window.open(`https://wa.me/?text=${whatsappText}`, "_blank");
-            }
-        } catch (err) {
-            // Cleanup on error too
-            const brandEl = document.getElementById("share-brand");
-            const footerEl = document.getElementById("share-footer");
-            if (brandEl) brandEl.remove();
-            if (footerEl) footerEl.remove();
-            document.querySelector(".action-buttons").style.display = "";
-            document.querySelectorAll(".card-tap-hint, .card-chevron").forEach(h => h.style.display = "");
-            cards.forEach((card, i) => {
-                if (!wasOpen[i]) card.classList.remove("open");
-                const body = card.querySelector(".card-body");
-                if (body) body.style.maxHeight = "";
-            });
-            if (err.name !== "AbortError") {
-                showError("לא הצלחתי לשתף, נסה שוב");
-            }
-        } finally {
-            shareBtn.disabled = false;
-            shareBtn.textContent = "שתף בוואטסאפ 📲";
-        }
+        const encoded = encodeURIComponent(text);
+        window.open(`https://wa.me/?text=${encoded}`, "_blank");
     });
 
     // Error toast
