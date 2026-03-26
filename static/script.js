@@ -158,6 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const text = [
             "💨 *קיטורים* by Barak Markov",
             "",
+            `*התלונה:* ${complaint.value.trim()}`,
+            "",
             `*מד התלונה:* ${stars} (${lastResult.rating}/5)`,
             lastResult.rating_text,
             "",
