@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const loadingText = document.getElementById("loadingText");
     const results = document.getElementById("results");
     const resetBtn = document.getElementById("resetBtn");
+    const shareBtn = document.getElementById("shareBtn");
 
     const coffeeFill = document.getElementById("coffeeFill");
     const foam = document.getElementById("foam");
@@ -144,6 +145,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
         complaint.focus();
         window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // Share on WhatsApp
+    shareBtn.addEventListener("click", async () => {
+        shareBtn.disabled = true;
+        shareBtn.textContent = "...מכין תמונה";
+
+        try {
+            // Open all cards so content is visible in screenshot
+            const cards = document.querySelectorAll(".response-card");
+            cards.forEach(card => card.classList.add("open"));
+
+            // Wait for animations to complete
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const canvas = await html2canvas(results, {
+                backgroundColor: "#FFF9F5",
+                scale: 2,
+                useCORS: true,
+            });
+
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+            const file = new File([blob], "kiturim.png", { type: "image/png" });
+
+            // Try native share (works on mobile)
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: "קיטורים",
+                    text: "תראו מה קיבלתי באפליקציית קיטורים 😂",
+                });
+            } else {
+                // Desktop fallback - download image + open WhatsApp with text
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "kiturim.png";
+                a.click();
+                URL.revokeObjectURL(url);
+
+                const whatsappText = encodeURIComponent("תראו מה קיבלתי באפליקציית קיטורים 😂\nhttps://kiturim.onrender.com");
+                window.open(`https://wa.me/?text=${whatsappText}`, "_blank");
+            }
+        } catch (err) {
+            if (err.name !== "AbortError") {
+                showError("לא הצלחתי לשתף, נסה שוב");
+            }
+        } finally {
+            shareBtn.disabled = false;
+            shareBtn.textContent = "שתף בוואטסאפ 📲";
+        }
     });
 
     // Error toast
