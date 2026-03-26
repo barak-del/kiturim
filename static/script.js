@@ -153,23 +153,64 @@ document.addEventListener("DOMContentLoaded", () => {
         shareBtn.textContent = "...מכין תמונה";
 
         try {
-            // Open all cards so content is visible in screenshot
+            // Open all cards for screenshot
             const cards = document.querySelectorAll(".response-card");
             cards.forEach(card => card.classList.add("open"));
 
-            // Wait for animations to complete
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Hide buttons during screenshot
+            const actionBtns = document.querySelector(".action-buttons");
+            actionBtns.style.display = "none";
 
-            const canvas = await html2canvas(results, {
+            // Create a wrapper with branding for the screenshot
+            const shareWrapper = document.createElement("div");
+            shareWrapper.style.cssText = "position:fixed;top:-9999px;left:0;width:500px;padding:24px;background:#FFF9F5;font-family:Rubik,sans-serif;direction:rtl;";
+
+            // Add branding header
+            const header = document.createElement("div");
+            header.style.cssText = "text-align:center;margin-bottom:16px;";
+            header.innerHTML = '<div style="font-size:1.8rem;font-weight:900;color:#f0a07a;">קיטורים</div><div style="font-size:0.75rem;color:#999;">by Barak Markov</div>';
+            shareWrapper.appendChild(header);
+
+            // Clone results content (without buttons)
+            const resultsClone = results.cloneNode(true);
+            resultsClone.classList.remove("hidden");
+            const clonedBtns = resultsClone.querySelector(".action-buttons");
+            if (clonedBtns) clonedBtns.remove();
+            // Open all cards in clone
+            resultsClone.querySelectorAll(".response-card").forEach(c => c.classList.add("open"));
+            // Force card bodies visible in clone
+            resultsClone.querySelectorAll(".card-body").forEach(b => {
+                b.style.maxHeight = "none";
+                b.style.marginTop = "14px";
+            });
+            // Hide tap hints in clone
+            resultsClone.querySelectorAll(".card-tap-hint").forEach(h => h.style.display = "none");
+            shareWrapper.appendChild(resultsClone);
+
+            // Add footer
+            const footer = document.createElement("div");
+            footer.style.cssText = "text-align:center;margin-top:16px;padding-top:12px;border-top:1px dashed #ddd;font-size:0.8rem;color:#aaa;";
+            footer.textContent = "kiturim.onrender.com 💨";
+            shareWrapper.appendChild(footer);
+
+            document.body.appendChild(shareWrapper);
+
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            const canvas = await html2canvas(shareWrapper, {
                 backgroundColor: "#FFF9F5",
                 scale: 2,
                 useCORS: true,
+                width: 500,
             });
+
+            // Cleanup
+            document.body.removeChild(shareWrapper);
+            actionBtns.style.display = "";
 
             const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
             const file = new File([blob], "kiturim.png", { type: "image/png" });
 
-            // Try native share (works on mobile)
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
@@ -177,7 +218,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     text: "תראו מה קיבלתי באפליקציית קיטורים 😂",
                 });
             } else {
-                // Desktop fallback - download image + open WhatsApp with text
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
@@ -193,6 +233,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 showError("לא הצלחתי לשתף, נסה שוב");
             }
         } finally {
+            const actionBtns = document.querySelector(".action-buttons");
+            actionBtns.style.display = "";
             shareBtn.disabled = false;
             shareBtn.textContent = "שתף בוואטסאפ 📲";
         }
