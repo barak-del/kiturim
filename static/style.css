@@ -289,7 +289,7 @@ textarea:focus {
 }
 
 /* Bougie Meter */
-.bougie-meter {
+.rating-section {
     background: #fff;
     border-radius: var(--radius);
     padding: 28px;
@@ -300,63 +300,36 @@ textarea:focus {
     animation: fadeInUp 0.5s ease-out;
 }
 
-.bougie-meter h2 {
+.rating-section h2 {
     font-size: 1.3rem;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     color: var(--text);
 }
 
-.meter-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-}
-
-.coffee-cup svg {
-    filter: drop-shadow(0 3px 8px rgba(0,0,0,0.08));
-}
-
-.coffee-fill {
-    transition: y 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.foam {
-    transition: opacity 0.5s ease 1.2s;
-}
-
-.foam.visible {
-    opacity: 1;
-}
-
-.meter-info {
-    text-align: right;
-}
-
-.meter-score {
+.stars-container {
     font-size: 2.4rem;
-    font-weight: 900;
-    color: var(--text);
-    margin-bottom: 4px;
+    margin-bottom: 12px;
+    letter-spacing: 6px;
+    direction: ltr;
+    display: inline-block;
 }
 
-.meter-score span {
-    font-size: 1.2rem;
-    font-weight: 500;
-    color: var(--text-light);
+.star {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    display: inline-block;
 }
 
-.meter-stars {
-    font-size: 1.8rem;
-    margin-bottom: 8px;
-    letter-spacing: 4px;
+.star-filled {
+    color: #f0a07a;
+}
+
+.star-empty {
+    color: #ddd;
 }
 
 .meter-text {
     font-size: 1.05rem;
     color: var(--text-light);
-    max-width: 300px;
     line-height: 1.6;
 }
 

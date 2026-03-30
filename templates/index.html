@@ -67,37 +67,11 @@
 
         <!-- Results Section -->
         <section id="results" class="results hidden">
-            <!-- Bougie Meter -->
-            <div class="bougie-meter">
+            <!-- Rating Stars -->
+            <div class="rating-section">
                 <h2>מד התלונה</h2>
-                <div class="meter-container">
-                    <div class="coffee-cup">
-                        <svg viewBox="0 0 120 140" width="120" height="140">
-                            <!-- Cup body -->
-                            <path d="M20 30 L25 120 Q25 135 60 135 Q95 135 95 120 L100 30" fill="#fff" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <!-- Coffee fill -->
-                            <clipPath id="cupClip">
-                                <path d="M22 32 L26 118 Q26 133 60 133 Q94 133 94 118 L98 32Z"/>
-                            </clipPath>
-                            <rect id="coffeeFill" x="20" y="130" width="80" height="105" fill="#FFDAC1" clip-path="url(#cupClip)" class="coffee-fill"/>
-                            <!-- Foam -->
-                            <g id="foam" class="foam hidden">
-                                <ellipse cx="60" cy="32" rx="38" ry="8" fill="#FFF3B0" stroke="#333" stroke-width="1.5"/>
-                                <circle cx="45" cy="30" r="4" fill="#fff" opacity="0.6"/>
-                                <circle cx="65" cy="31" r="3" fill="#fff" opacity="0.4"/>
-                            </g>
-                            <!-- Handle -->
-                            <path d="M100 50 Q125 50 125 75 Q125 100 100 100" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
-                            <!-- Cup rim -->
-                            <ellipse cx="60" cy="30" rx="40" ry="8" fill="#f8f8f8" stroke="#333" stroke-width="2.5"/>
-                        </svg>
-                    </div>
-                    <div class="meter-info">
-                        <div class="meter-score" id="meterScore"></div>
-                        <div class="meter-stars" id="meterStars"></div>
-                        <p class="meter-text" id="meterText"></p>
-                    </div>
-                </div>
+                <div class="stars-container" id="meterStars"></div>
+                <p class="meter-text" id="meterText"></p>
             </div>
 
             <!-- Response Cards -->

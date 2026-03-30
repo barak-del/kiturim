@@ -8,9 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const resetBtn = document.getElementById("resetBtn");
     const shareBtn = document.getElementById("shareBtn");
 
-    const coffeeFill = document.getElementById("coffeeFill");
-    const foam = document.getElementById("foam");
-    const meterScore = document.getElementById("meterScore");
     const meterStars = document.getElementById("meterStars");
     const meterText = document.getElementById("meterText");
 
@@ -88,28 +85,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function showResults(data) {
         lastResult = data;
-        // Coffee fill animation - rating 1-5 maps to fill level
         const rating = data.rating || 3;
-        // y goes from 130 (empty) to 32 (full). Each level = ~20px
-        const fillY = 130 - (rating * 20);
-        coffeeFill.setAttribute("y", fillY);
-
-        // Show foam for ratings >= 4
-        if (rating >= 4) {
-            foam.classList.remove("hidden");
-            foam.classList.add("visible");
-        } else {
-            foam.classList.add("hidden");
-            foam.classList.remove("visible");
-        }
-
-        // Score
-        meterScore.innerHTML = `${rating} <span>/ 5</span>`;
 
         // Stars
-        const fullStar = "☕";
-        const emptyStar = "·";
-        meterStars.textContent = fullStar.repeat(rating) + emptyStar.repeat(5 - rating);
+        let starsHtml = "";
+        for (let i = 1; i <= 5; i++) {
+            starsHtml += `<span class="star ${i <= rating ? 'star-filled' : 'star-empty'}">${i <= rating ? '★' : '☆'}</span>`;
+        }
+        meterStars.innerHTML = starsHtml;
 
         // Meter text
         meterText.textContent = data.rating_text || "";
@@ -134,11 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
         complaint.value = "";
         charCount.textContent = "0";
 
-        // Reset coffee
-        coffeeFill.setAttribute("y", "130");
-        foam.classList.add("hidden");
-        foam.classList.remove("visible");
-
         // Close all cards
         document.querySelectorAll(".response-card.open").forEach(card => {
             card.classList.remove("open");
@@ -154,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     shareBtn.addEventListener("click", () => {
         if (!lastResult) return;
 
-        const stars = "⭐".repeat(lastResult.rating) + "☆".repeat(5 - lastResult.rating);
+        const stars = "★".repeat(lastResult.rating) + "☆".repeat(5 - lastResult.rating);
         const text = [
             "💨 *קיטורים* by Barak Markov",
             "",
